@@ -42,6 +42,7 @@ while [ $# -gt 0 ]; do
 		-v|--set-version) UPDATE_VERSION=1;;
 		-g|--set-git-ver) UPDATE_GITVER=1;;
 		-R|--do-remove-tar) DO_REMOVE_TAR=1;;
+		-C|--do-changes) DO_CHANGES=1;;
 		-b|--do-build) DO_BUILD=1;;
 		-X|--pre-build) PREBUILD_CMD=$1; shift;;
 		-c|--do-commit) DO_COMMIT=1;;
