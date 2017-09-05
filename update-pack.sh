@@ -34,6 +34,8 @@ while [ $# -gt 0 ]; do
 		-h|--help) usage;;
 		-v) UPDATE_VERSION = 1;;
 		-g) UPDATE_GITVER = 1;;
+		-b) DO_BUILD = 1;;
+		-c) DO_COMMIT = 1;;
 		*) die "Unexpected option: $opt" ;;
 	esac
 done
