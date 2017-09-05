@@ -125,8 +125,7 @@ if [ $DO_SERVICEONLY -ne 1 ]; then
 
 	cd "$OBS_PROJECT/$PACKAGE/"
 else
-	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version | sed -e  's/\(Version:[[:space:]]*\)//')
-	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version | sed -e  's/\(Version:[[:space:]]*\)//')
+	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
 fi
 
 # Cleanup old packages
