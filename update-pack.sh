@@ -76,7 +76,7 @@ if [ $UPDATE_VERSION -eq 1 ]; then
 	sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
 fi
 if [ $UPDATE_GITVER -eq 1 ]; then
-	sed -i 's/\(%define[[:space:]]*git_ver\).*/\1 '$GIT_SUFF'/' -e $PACKAGE.spec
+	sed -i -e 's/\(%define[[:space:]]*git_ver\).*/\1 '$GIT_SUFF'/' $PACKAGE.spec
 fi
 
 osc addremove
