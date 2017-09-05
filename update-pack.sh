@@ -33,10 +33,10 @@ while [ $# -gt 0 ]; do
 		-n|--name) PACKAGE=$1; shift ;;
 		-p|--project) OBS_PROJECT=$1; shift ;;
 		-h|--help) usage;;
-		-v) UPDATE_VERSION = 1;;
-		-g) UPDATE_GITVER = 1;;
-		-b) DO_BUILD = 1;;
-		-c) DO_COMMIT = 1;;
+		-v) UPDATE_VERSION=1;;
+		-g) UPDATE_GITVER=1;;
+		-b) DO_BUILD=1;;
+		-c) DO_COMMIT=1;;
 		-x|--verbose) set -x;;
 		*) die "Unexpected option: $opt" ;;
 	esac
