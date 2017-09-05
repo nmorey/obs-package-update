@@ -22,6 +22,7 @@ usage()
 	echo " -g              Update git_ver in the spec file"
 	echo " -b              Build the project atfer updating"
 	echo " -c              Commit the project atfer updating"
+	echo " -x,--versose    Enable verbose mode"
 	echo " -h,--help       This usage"
 	exit 1
 }
@@ -36,6 +37,7 @@ while [ $# -gt 0 ]; do
 		-g) UPDATE_GITVER = 1;;
 		-b) DO_BUILD = 1;;
 		-c) DO_COMMIT = 1;;
+		-x|--verbose) set -x;;
 		*) die "Unexpected option: $opt" ;;
 	esac
 done
