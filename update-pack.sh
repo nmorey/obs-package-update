@@ -126,27 +126,28 @@ if [ "$TARBALL_NAME" == "" ]; then
 	TARBALL_NAME=$PACKAGE
 fi
 
-# Try to fetch the rewrite patterns from the _service file
-export REWRITE_PATTERN=$(_service_extract_param versionrewrite-pattern \
-												$OBS_PROJECT/$PACKAGE/_service |\
-							 sed -e 's/(/\\(/' -e 's/)/\\)/')
-export REWRITE_REPLACEMENT=$(_service_extract_param versionrewrite-replacement \
-													$OBS_PROJECT/$PACKAGE/_service)
-if [ "$REWRITE_PATTERN" == "" ]; then
-	#If not set, use a generic rule
-	REWRITE_PATTERN='\(.*\)'
-	REWRITE_REPLACEMENT='\1'
-fi
-
-export MATCH_TAG=$(_service_extract_param match-tag $OBS_PROJECT/$PACKAGE/_service)
-if [ "$MATCH_TAG" != "" ]; then
-	MATCH_TAG="--match $MATCH_TAG"
-fi
-
 if [ $DO_SERVICEONLY -ne 1 ]; then
 	# Get version from git
 	rm -Rf "$OBS_PROJECT/$PACKAGE"
 	osc co $OBS_PROJECT $PACKAGE
+
+
+	# Try to fetch the rewrite patterns from the _service file
+	export REWRITE_PATTERN=$(_service_extract_param versionrewrite-pattern \
+													$OBS_PROJECT/$PACKAGE/_service |\
+								 sed -e 's/(/\\(/' -e 's/)/\\)/')
+	export REWRITE_REPLACEMENT=$(_service_extract_param versionrewrite-replacement \
+														$OBS_PROJECT/$PACKAGE/_service)
+	if [ "$REWRITE_PATTERN" == "" ]; then
+		#If not set, use a generic rule
+		REWRITE_PATTERN='\(.*\)'
+		REWRITE_REPLACEMENT='\1'
+	fi
+
+	export MATCH_TAG=$(_service_extract_param match-tag $OBS_PROJECT/$PACKAGE/_service)
+	if [ "$MATCH_TAG" != "" ]; then
+		MATCH_TAG="--match $MATCH_TAG"
+	fi
 
 	VERSION=$(_get_git_version)
 	NEW_SHA=$(git rev-parse HEAD)
