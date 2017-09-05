@@ -50,7 +50,6 @@ if [ "$PACKAGE" == "" ]; then
 fi
 
 cd $WORKSPACE;
-PACKAGE=libfabric
 
 rm -Rf "$OBS_PROJECT/$PACKAGE"
 osc co $OBS_PROJECT $PACKAGE
