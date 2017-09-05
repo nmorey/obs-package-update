@@ -11,6 +11,8 @@ DO_BUILD=0
 PREBUILD_CMDT=""
 DO_COMMIT=0
 DO_SERVICEONLY=0
+TARBALL_NAME=""
+
 die()
 {
 	echo "$@" >&2
@@ -22,6 +24,7 @@ usage()
 	echo "$0 -n <PACKAGE> -p <OBS_PROJECT> [OPTIONS]"
 	echo " -n,--name            Package name in OBS"
 	echo " -p,--project         Project name in OBS"
+	echo " -T,--tar-name        Tarball name (except version). Defaults to package name"
 	echo " -v,--set-version     Update version in the spec file"
 	echo " -g,--set-git-ver     Update git_ver in the spec file"
 	echo " -R,--do-remove-tar   Remove <PACKAGE>.tar.*"
@@ -49,6 +52,7 @@ while [ $# -gt 0 ]; do
 	case "$opt" in
 		-n|--name) PACKAGE=$1; shift ;;
 		-p|--project) OBS_PROJECT=$1; shift ;;
+		-T|--tar-name) TARBALL_NAME=$1; shift ;;
 		-v|--set-version) UPDATE_VERSION=1;;
 		-g|--set-git-ver) UPDATE_GITVER=1;;
 		-R|--do-remove-tar) DO_REMOVE_TAR=1;;
@@ -91,6 +95,9 @@ else
 	fi
 fi
 
+if [ "$TARBALL_NAME" == "" ]; then
+	TARBALL_NAME=PACKAGE
+fi
 if [ $DO_SERVICEONLY -ne 1 ]; then
 	rm -Rf "$OBS_PROJECT/$PACKAGE"
 	osc co $OBS_PROJECT $PACKAGE
@@ -136,7 +143,7 @@ LOG=$(osc service disabledrun)
 
 # Get git suffix. This allows custom naming to work
 GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | head -n 1 | \
-			   sed -e 's/.*\('$PACKAGE'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$PACKAGE'-'$VERSION'//')
+			   sed -e 's/.*\('$TARBALL_NAME'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$TARBALL_NAME'-'$VERSION'//')
 
 if [ $UPDATE_VERSION -eq 1 ]; then
 	sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
