@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+VERBOSE=0
 OBS_PROJECT=""
 PACKAGE=""
 UPDATE_VERSION=0
@@ -56,15 +57,23 @@ while [ $# -gt 0 ]; do
 		-X|--pre-build) PREBUILD_CMD=$1; shift;;
 		-c|--do-commit) DO_COMMIT=1;;
 		-S|--service-only) DO_SERVICEONLY=1;;
-		-x|--verbose) set -x;;
+		-x|--verbose) VERBOSE=1;;
 		-h|--help) usage;;
 
 		*) die "Unexpected option: $opt" ;;
 	esac
 done
 
+if [ $VERBOSE -ne 0 ]; then
+	set -x
+fi
 if [ "$PACKAGE" == "" ]; then
-	die "ERROR: PACKAGE not specified"
+	if [ -f .osc/_package ]; then
+		PACKAGE=$(cat .osc/_package)
+	fi
+	if [ "$PACKAGE" == "" ]; then
+		die "ERROR: PACKAGE not specified"
+	fi
 fi
 if [ $DO_SERVICEONLY -eq 1 ]; then
    if [ $UPDATE_VERSION -eq 1 ]; then
@@ -127,7 +136,7 @@ fi
 LOG=$(osc service disabledrun)
 
 # Get git suffix. This allows custom naming to work
-GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | \
+GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | head -n 1 | \
 			   sed -e 's/.*\('$PACKAGE'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$PACKAGE'-'$VERSION'//')
 
 if [ $UPDATE_VERSION -eq 1 ]; then
