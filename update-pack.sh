@@ -70,7 +70,7 @@ LOG=$(osc service disabledrun)
 
 # Get git suffix. This allows custom naming to work
 GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | \
-			   sed -e 's/.*\('$PACKAGE'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$PACKAGE'-[0-9]*//')
+			   sed -e 's/.*\('$PACKAGE'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$PACKAGE'-'$VERSION'//')
 
 if [ $UPDATE_VERSION -eq 1 ]; then
 	sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
