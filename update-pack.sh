@@ -33,6 +33,15 @@ usage()
 	echo " -h,--help            This usage"
 	exit 1
 }
+
+_service_extract_param()
+{
+	local file=$2
+	local param_name=$1
+	grep $param_name $file | \
+		sed -e 's/.*<param name="'$param_name'">\(.*\)<\/param>.*/\1/'
+}
+
 while [ $# -gt 0 ]; do
 	opt="$1"
 	shift
@@ -77,7 +86,26 @@ if [ $DO_SERVICEONLY -ne 1 ]; then
 	rm -Rf "$OBS_PROJECT/$PACKAGE"
 	osc co $OBS_PROJECT $PACKAGE
 	NEW_SHA=$(git rev-parse HEAD)
-	VERSION=$(git describe --abbrev=0 | sed -e 's/^v//' -e 's/-.*$//')
+
+	# Try to fetch the rewrite patterns from the _service file
+	REWRITE_PATTERN=$(_service_extract_param versionrewrite-pattern \
+											 $OBS_PROJECT/$PACKAGE/_service |\
+				   sed -e 's/(/\\(/' -e 's/)/\\)/')
+	REWRITE_REPLACEMENT=$(_service_extract_param versionrewrite-replacement \
+						  $OBS_PROJECT/$PACKAGE/_service)
+	if [ "$REWRITE_PATTERN" == "" ]; then
+	   #If not set, use a generic rule
+	   REWRITE_PATTERN='\(.*\)'
+	   REWRITE_REPLACEMENT='\1'
+	fi
+
+	MATCH_TAG=$(_service_extract_param match-tag \
+									   $OBS_PROJECT/$PACKAGE/_service)
+	if [ "$MATCH_TAG" != "" ]; then
+		MATCH_TAG="--match $MATCH_TAG"
+	fi
+	VERSION=$(git describe --abbrev=0 --tags $MATCH_TAG | \
+				  sed -e 's/[-:]//g' -e s/$REWRITE_PATTERN/$REWRITE_REPLACEMENT/ -e 's/-.*$//')
 	OLD_SHA=$(grep revision "$OBS_PROJECT/$PACKAGE/_service"  | \
 				  sed -e 's/^.*">\([0-9a-f]\{40\}\).*$/\1/')
 	CHANGES=$(echo "Auto update from $OLD_SHA to $NEW_SHA";\
@@ -88,6 +116,7 @@ if [ $DO_SERVICEONLY -ne 1 ]; then
 
 	cd "$OBS_PROJECT/$PACKAGE/"
 else
+	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version | sed -e  's/\(Version:[[:space:]]*\)//')
 	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version | sed -e  's/\(Version:[[:space:]]*\)//')
 fi
 
