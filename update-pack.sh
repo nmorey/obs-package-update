@@ -178,7 +178,7 @@ fi
 
 # Cleanup old packages
 if [ $DO_REMOVE_TAR -ne 0 ]; then
-	rm -f $PACKAGE-[0-9]*.tar.gz $PACKAGE-[0-9]*.tar.bz2 $PACKAGE-[0-9]*.tar.xz
+	rm -f $TARBALL_NAME-[0-9]*.tar.gz $TARBALL_NAME-[0-9]*.tar.bz2 $TARBALL_NAME-[0-9]*.tar.xz
 fi
 LOG=$(osc service disabledrun)
 
