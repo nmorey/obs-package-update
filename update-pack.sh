@@ -128,9 +128,8 @@ fi
 
 if [ $DO_SERVICEONLY -ne 1 ]; then
 	# Get version from git
-	rm -Rf "$OBS_PROJECT/$PACKAGE"
-	osc co $OBS_PROJECT $PACKAGE
-
+	osc co $OBS_PROJECT $PACKAGE || true
+	(cd $OBS_PROJECT/$PACKAGE && osc up )
 
 	# Try to fetch the rewrite patterns from the _service file
 	export REWRITE_PATTERN=$(_service_extract_param versionrewrite-pattern \
