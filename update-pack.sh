@@ -214,5 +214,5 @@ if [ $DO_COMMIT -ne 0 ]; then
 	else
 		COMMIT_LOG=$CHANGES
 	fi
-	echo "$COMMIT_LOG" |  ead -n 20 | osc commit -F -
+	osc commit -m "$COMMIT_LOG"
 fi
