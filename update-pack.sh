@@ -208,5 +208,5 @@ if [ $DO_BUILD -ne 0 ]; then
 	osc build --trust-all-projects --clean
 fi
 if [ $DO_COMMIT -ne 0 ]; then
-	osc commit -m "$CHANGES"
+	echo "$CHANGES" | osc commit -F -
 fi
