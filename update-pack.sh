@@ -208,5 +208,11 @@ if [ $DO_BUILD -ne 0 ]; then
 	osc build --trust-all-projects --clean
 fi
 if [ $DO_COMMIT -ne 0 ]; then
-	echo "$CHANGES" | osc commit -F -
+	N_LINES=$(echo "$CHANGES" | wc -l)
+	if [ $N_LINES -ge 10 ]; then
+		COMMIT_LOG=$(echo "$CHANGES" | head -n 10; echo '[...]')
+	else
+		COMMIT_LOG=$CHANGES
+	fi
+	echo "$COMMIT_LOG" |  ead -n 20 | osc commit -F -
 fi
