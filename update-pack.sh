@@ -13,6 +13,8 @@ DO_COMMIT=0
 DO_SERVICEONLY=0
 TARBALL_NAME=""
 DO_GIT_VERSION_EXTRACT=0
+VERSION_NAME=""
+_VERSION_NAME=""
 
 die()
 {
@@ -52,20 +54,22 @@ _get_git_full_version()
 usage()
 {
 	echo "$0 -n <PACKAGE> -p <OBS_PROJECT> [OPTIONS]"
-	echo " -n,--name            Package name in OBS"
-	echo " -p,--project         Project name in OBS"
-	echo " -T,--tar-name        Tarball name (except version). Defaults to package name"
-	echo " -v,--set-version     Update version in the spec file"
-	echo " -g,--set-git-ver     Update git_ver in the spec file"
-	echo " -G,--do-git-version  Extract version from git and update _service (default gets from service results"
-	echo " -R,--do-remove-tar   Remove <PACKAGE>.tar.*"
-	echo " -C,--do-changes      Update the .changes file"
-	echo " -b,--do-build        Build the project after updating"
-	echo " -X,--pre-build=<cmd> Run <cmd> before commiting/build"
-	echo " -c,--do-commit       Commit the project atfer updating"
-	echo " -S,--service-only    Do not access the git but only refresh the files"
-	echo " -x,--verbose         Enable verbose mode"
-	echo " -h,--help            This usage"
+	echo " -n,--name                  Package name in OBS"
+	echo " -p,--project               Project name in OBS"
+	echo " -T,--tar-name              Tarball name (except version). Defaults to package name"
+	echo " -v,--set-version           Update version in the spec file"
+	echo "    --version-name <str>    Replace define 'str' instead of global Version:"
+	echo "    --_version-name <str>   Set define <str> to clean version string (package name compatible)"
+	echo " -g,--set-git-ver           Update git_ver in the spec file"
+	echo " -G,--do-git-version        Extract version from git and update _service (default gets from service results"
+	echo " -R,--do-remove-tar         Remove <PACKAGE>.tar.*"
+	echo " -C,--do-changes            Update the .changes file"
+	echo " -b,--do-build              Build the project after updating"
+	echo " -X,--pre-build=<cmd>       Run <cmd> before commiting/build"
+	echo " -c,--do-commit             Commit the project atfer updating"
+	echo " -S,--service-only          Do not access the git but only refresh the files"
+	echo " -x,--verbose               Enable verbose mode"
+	echo " -h,--help                  This usage"
 	exit 1
 }
 
@@ -77,6 +81,8 @@ while [ $# -gt 0 ]; do
 		-p|--project) OBS_PROJECT=$1; shift ;;
 		-T|--tar-name) TARBALL_NAME=$1; shift ;;
 		-v|--set-version) UPDATE_VERSION=1;;
+		--version-name) VERSION_NAME=$1; shift;;
+		--_version-name) _VERSION_NAME=$1; shift;;
 		-g|--set-git-ver) UPDATE_GITVER=1;;
 		-G|--do-git-version) DO_GIT_VERSION_EXTRACT=1;;
 		-R|--do-remove-tar) DO_REMOVE_TAR=1;;
@@ -189,7 +195,15 @@ if [ "$GIT_SUFF" == "" ]; then
 fi
 
 if [ $UPDATE_VERSION -eq 1 ]; then
-	sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
+	if [ "$VERSION_NAME" == "" ]; then
+		sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
+	else
+		sed -i -e 's/\($define '$VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
+	fi
+	if [ "$_VERSION_NAME" != "" ]; then
+		_VERSION=$(echo $VERSION | sed -e 's/\./_/g')
+		sed -i -e 's/\($define '$_VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$_VERSION'/' $PACKAGE.spec
+	fi
 fi
 if [ $UPDATE_GITVER -eq 1 ]; then
 	sed -i -e 's/\(%define[[:space:]]*git_ver\).*/\1 '$GIT_SUFF'/' $PACKAGE.spec
