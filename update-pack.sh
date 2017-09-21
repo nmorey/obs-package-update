@@ -15,6 +15,7 @@ TARBALL_NAME=""
 DO_GIT_VERSION_EXTRACT=0
 VERSION_NAME=""
 _VERSION_NAME=""
+MAJOR_NAME=""
 
 die()
 {
@@ -60,6 +61,7 @@ usage()
 	echo " -v,--set-version           Update version in the spec file"
 	echo "    --version-name <str>    Replace define 'str' instead of global Version:"
 	echo "    --_version-name <str>   Set define <str> to clean version string (package name compatible)"
+	echo "    --major-name <str>      Set define <str> to the major version"
 	echo " -g,--set-git-ver           Update git_ver in the spec file"
 	echo " -G,--do-git-version        Extract version from git and update _service (default gets from service results"
 	echo " -R,--do-remove-tar         Remove <PACKAGE>.tar.*"
@@ -83,6 +85,7 @@ while [ $# -gt 0 ]; do
 		-v|--set-version) UPDATE_VERSION=1;;
 		--version-name) VERSION_NAME=$1; shift;;
 		--_version-name) _VERSION_NAME=$1; shift;;
+		--major-name) MAJOR_NAME=$1; shift;;
 		-g|--set-git-ver) UPDATE_GITVER=1;;
 		-G|--do-git-version) DO_GIT_VERSION_EXTRACT=1;;
 		-R|--do-remove-tar) DO_REMOVE_TAR=1;;
@@ -203,6 +206,10 @@ if [ $UPDATE_VERSION -eq 1 ]; then
 	if [ "$_VERSION_NAME" != "" ]; then
 		_VERSION=$(echo $VERSION | sed -e 's/\./_/g')
 		sed -i -e 's/\($define '$_VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$_VERSION'/' $PACKAGE.spec
+	fi
+	if [ "$MAJOR_NAME" != "" ]; then
+		MAJOR_VERSION=$(echo $VERSION | awk -F ',' '{ print $1}')
+		sed -i -e 's/\($define '$MAJOR_NAME'[[:space:]]*\)[0-9].*/\1'$MAJOR_VERSION'/' $PACKAGE.spec
 	fi
 fi
 if [ $UPDATE_GITVER -eq 1 ]; then
