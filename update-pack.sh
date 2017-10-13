@@ -181,7 +181,7 @@ if [ $DO_SERVICEONLY -ne 1 ]; then
 	cd "$OBS_PROJECT/$PACKAGE/"
 else
 	#Get version from spec and suffix later on from _service result
-	VERSION=$(rpmspec -P $PACKAGE.spec  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
+	VERSION=$(rpmspec -P <(sed -e s/@BUILD_FLAVOR@//g $PACKAGE.spec)  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
 fi
 
 # Cleanup old packages
