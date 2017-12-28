@@ -208,7 +208,7 @@ if [ $UPDATE_VERSION -eq 1 ]; then
 		sed -i -e 's/\(%define '$_VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$_VERSION'/' $PACKAGE.spec
 	fi
 	if [ "$MAJOR_NAME" != "" ]; then
-		MAJOR_VERSION=$(echo $VERSION | awk -F ',' '{ print $1}')
+		MAJOR_VERSION=$(echo $VERSION | awk -F '.' '{ print $1}')
 		sed -i -e 's/\(%define '$MAJOR_NAME'[[:space:]]*\)[0-9].*/\1'$MAJOR_VERSION'/' $PACKAGE.spec
 	fi
 fi
