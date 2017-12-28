@@ -201,15 +201,15 @@ if [ $UPDATE_VERSION -eq 1 ]; then
 	if [ "$VERSION_NAME" == "" ]; then
 		sed -i -e 's/\(Version:[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
 	else
-		sed -i -e 's/\($define '$VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
+		sed -i -e 's/\(%define '$VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$VERSION'/' $PACKAGE.spec
 	fi
 	if [ "$_VERSION_NAME" != "" ]; then
 		_VERSION=$(echo $VERSION | sed -e 's/\./_/g')
-		sed -i -e 's/\($define '$_VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$_VERSION'/' $PACKAGE.spec
+		sed -i -e 's/\(%define '$_VERSION_NAME'[[:space:]]*\)[0-9].*/\1'$_VERSION'/' $PACKAGE.spec
 	fi
 	if [ "$MAJOR_NAME" != "" ]; then
 		MAJOR_VERSION=$(echo $VERSION | awk -F ',' '{ print $1}')
-		sed -i -e 's/\($define '$MAJOR_NAME'[[:space:]]*\)[0-9].*/\1'$MAJOR_VERSION'/' $PACKAGE.spec
+		sed -i -e 's/\(%define '$MAJOR_NAME'[[:space:]]*\)[0-9].*/\1'$MAJOR_VERSION'/' $PACKAGE.spec
 	fi
 fi
 if [ $UPDATE_GITVER -eq 1 ]; then
