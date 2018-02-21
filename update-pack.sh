@@ -183,6 +183,10 @@ else
 	#Get version from spec and suffix later on from _service result
 	VERSION=$(rpmspec -P <(sed -e s/@BUILD_FLAVOR@//g $PACKAGE.spec)  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
 fi
+if [ "$VERSION" == "" ]; then
+	echo "Failed to extract version" >&2
+	exit 1
+fi
 
 # Cleanup old packages
 if [ $DO_REMOVE_TAR -ne 0 ]; then
