@@ -181,7 +181,10 @@ if [ $DO_SERVICEONLY -ne 1 ]; then
 	cd "$OBS_PROJECT/$PACKAGE/"
 else
 	#Get version from spec and suffix later on from _service result
-	VERSION=$(rpmspec -P <(sed -e s/@BUILD_FLAVOR@//g $PACKAGE.spec)  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
+	TMP_FILE=$(mktemp)
+	sed -e s/@BUILD_FLAVOR@//g $PACKAGE.spec > $TMP_FILE
+	VERSION=$(rpmspec -P $TMP_FILE  | grep Version: | sed -e  's/\(Version:[[:space:]]*\)//')
+	rm -f $TMP_FILE
 fi
 if [ "$VERSION" == "" ]; then
 	echo "Failed to extract version" >&2
