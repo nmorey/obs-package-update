@@ -138,6 +138,12 @@ fi
 if [ $DO_SERVICEONLY -ne 1 ]; then
 	# Get version from git
 	osc co $OBS_PROJECT $PACKAGE || true
+
+	# Reset to parent project first to remove conflicts
+	PARENT_PROJ=$(osc cat -u $OBS_PROJECT $PACKAGE  _link | grep project= | 
+					  sed  -e 's/.*project="\([a-zA-Z:0-9]\+\)".*/\1/')
+	osc copypac $PARENT_PROJ $PACKAGE $OBS_PROJECT
+
 	(cd $OBS_PROJECT/$PACKAGE && osc up )
 
 	# Try to fetch the rewrite patterns from the _service file
