@@ -31,6 +31,26 @@ _service_extract_param()
 		sed -e 's/.*<param name="'$param_name'">\(.*\)<\/param>.*/\1/'
 }
 
+_service_get_git_params()
+{
+	local file=$1
+	# Try to fetch the rewrite patterns from the _service file
+	export REWRITE_PATTERN=$(_service_extract_param versionrewrite-pattern \
+													$file |\
+								 sed -e 's/(/\\(/' -e 's/)/\\)/')
+	export REWRITE_REPLACEMENT=$(_service_extract_param versionrewrite-replacement \
+														$file)
+	if [ "$REWRITE_PATTERN" == "" ]; then
+		#If not set, use a generic rule
+		REWRITE_PATTERN='\(.*\)'
+		REWRITE_REPLACEMENT='\1'
+	fi
+
+	export MATCH_TAG=$(_service_extract_param match-tag $file)
+	if [ "$MATCH_TAG" != "" ]; then
+		MATCH_TAG="--match $MATCH_TAG"
+	fi
+}
 _get_git_version()
 {
 	REPLACE_CHAR=''
@@ -113,9 +133,6 @@ if [ "$PACKAGE" == "" ]; then
 	fi
 fi
 if [ $DO_SERVICEONLY -eq 1 ]; then
-   if [ $UPDATE_VERSION -eq 1 ]; then
-	   die "Cannot run service only and request version update"
-   fi
    if [ $DO_CHANGES -eq 1 ]; then
 	   die "Cannot run service only and do changelog"
    fi
@@ -202,6 +219,17 @@ if [ $DO_REMOVE_TAR -ne 0 ]; then
 	rm -f $TARBALL_NAME-[0-9]*.tar.gz $TARBALL_NAME-[0-9]*.tar.bz2 $TARBALL_NAME-[0-9]*.tar.xz
 fi
 LOG=$(osc service disabledrun)
+
+if [ $DO_SERVICEONLY -eq 1 -a $UPDATE_VERSION -eq 1 ]; then
+	# Get real version from the local git created by osc service
+
+	_service_get_git_params _service
+	gitdir=$(basename $(_service_extract_param url _service) | sed -e 's/\.git$//')
+	cd $gitdir
+	VERSION=$(git describe --abbrev=0 --tags $MATCH_TAG | \
+				  sed -e s/$REWRITE_PATTERN/$REWRITE_REPLACEMENT/ -e 's/[^0-9.].*$//')
+	cd ..
+fi
 
 # Get git suffix. This allows custom naming to work
 GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | head -n 1 | \
