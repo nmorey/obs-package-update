@@ -216,7 +216,8 @@ fi
 
 # Cleanup old packages
 if [ $DO_REMOVE_TAR -ne 0 ]; then
-	rm -f $TARBALL_NAME-[0-9]*.tar.gz $TARBALL_NAME-[0-9]*.tar.bz2 $TARBALL_NAME-[0-9]*.tar.xz
+	rm -f $TARBALL_NAME-[0-9]*.tar.gz $TARBALL_NAME-[0-9]*.tar.bz2 \
+	   $TARBALL_NAME-[0-9]*.tar.xz $TARBALL_NAME-[0-9]*.obscpio
 fi
 LOG=$(osc service disabledrun)
 
@@ -232,8 +233,13 @@ if [ $DO_SERVICEONLY -eq 1 -a $UPDATE_VERSION -eq 1 ]; then
 fi
 
 # Get git suffix. This allows custom naming to work
-GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | head -n 1 | \
-			   sed -e 's/.*\('$TARBALL_NAME'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/' -e 's/'$TARBALL_NAME'-'$VERSION'//')
+if [ -f "$TARBALL_NAME.obsinfo" ]; then
+	GIT_SUFF=$(egrep '^version: ' $TARBALL_NAME.obsinfo | sed -e 's/^version: '$VERSION'//')
+else
+	GIT_SUFF=$(echo "$LOG" | egrep '\.tar\.(gz|xz|bz2)' | head -n 1 | \
+			   sed -e 's/.*\('$TARBALL_NAME'[^ ]*\)\.tar\.\(gz\|xz\|bz2\).*/\1/'\
+				   -e 's/'$TARBALL_NAME'-'$VERSION'//')
+fi
 if [ "$GIT_SUFF" == "" ]; then
 	GIT_SUFF="%{nil}"
 fi
