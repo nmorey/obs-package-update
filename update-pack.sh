@@ -219,7 +219,7 @@ if [ $DO_REMOVE_TAR -ne 0 ]; then
 	rm -f $TARBALL_NAME-[0-9]*.tar.gz $TARBALL_NAME-[0-9]*.tar.bz2 \
 	   $TARBALL_NAME-[0-9]*.tar.xz $TARBALL_NAME-[0-9]*.obscpio
 fi
-LOG=$(osc service disabledrun)
+LOG=$(osc service manualrun)
 
 if [ $DO_SERVICEONLY -eq 1 -a $UPDATE_VERSION -eq 1 ]; then
 	# Get real version from the local git created by osc service
